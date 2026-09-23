@@ -83,6 +83,7 @@ export default async function EditPostPage({
           originalSlug={post.slug}
           initialPost={{
             title: post.title,
+            author: post.author ?? "",
             slug: post.slug,
             content: post.content,
             published: post.published,

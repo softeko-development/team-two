@@ -9,6 +9,7 @@ I worked only on the files related to:
 - Viewing a single post by slug
 - Editing an existing post
 - Deleting a post
+- Showing and editing the post author
 - Showing post-specific 404 UI
 - Showing edit/delete/API validation errors on the frontend
 
@@ -41,6 +42,7 @@ GET /api/posts/[slug]
 ```
 
 - Displays the post title, slug, content, published status, and updated date.
+- Displays the post author when the backend includes it.
 - Shows a link back to the posts list.
 - Shows an edit link:
 
@@ -104,6 +106,7 @@ What it does:
 
 - Shows form fields for:
   - `title`
+  - `author`
   - `slug`
   - `content`
   - `published`
@@ -186,6 +189,7 @@ or:
 The frontend validates that these fields are not empty:
 
 - `title`
+- `author`
 - `slug`
 - `content`
 
@@ -221,4 +225,3 @@ The production build did not complete because of local environment issues with N
 ## Notes
 
 This work intentionally depends on the backend API being completed by the backend developer. Until those API routes exist, the pages and buttons are implemented against the agreed API contract.
-

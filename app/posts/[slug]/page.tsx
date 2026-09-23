@@ -6,6 +6,7 @@ import DeletePostButton from "@/components/posts/DeletePostButton";
 type Post = {
   id: string;
   title: string;
+  author?: string;
   slug: string;
   content: string;
   published: boolean;
@@ -93,7 +94,11 @@ export default async function PostPage({ params }: PageProps<"/posts/[slug]">) {
             <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
               {post.title}
             </h1>
-            <p className="text-sm text-zinc-500">/{post.slug}</p>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-zinc-500">
+              <span>By {post.author || "Unknown author"}</span>
+              <span aria-hidden="true">/</span>
+              <span>/{post.slug}</span>
+            </div>
           </div>
         </header>
 

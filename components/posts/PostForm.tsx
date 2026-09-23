@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 export type PostFormData = {
   title: string;
+  author: string;
   slug: string;
   content: string;
   published: boolean;
@@ -32,6 +33,7 @@ function getFieldErrors(form: PostFormData) {
   const errors: Partial<Record<keyof PostFormData, string>> = {};
 
   if (!form.title.trim()) errors.title = "Title is required.";
+  if (!form.author.trim()) errors.author = "Author is required.";
   if (!form.slug.trim()) errors.slug = "Slug is required.";
   if (!form.content.trim()) errors.content = "Content is required.";
 
@@ -98,6 +100,7 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
           },
           body: JSON.stringify({
             title: form.title.trim(),
+            author: form.author.trim(),
             slug: form.slug.trim(),
             content: form.content.trim(),
             published: form.published,
@@ -140,6 +143,25 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
         />
         {fieldErrors.title ? (
           <p className="text-sm text-red-600">{fieldErrors.title}</p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label
+          htmlFor="author"
+          className="block text-sm font-medium text-zinc-900"
+        >
+          Author
+        </label>
+        <input
+          id="author"
+          type="text"
+          value={form.author}
+          onChange={(event) => updateField("author", event.target.value)}
+          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-zinc-950 focus:ring-2 focus:ring-zinc-200"
+        />
+        {fieldErrors.author ? (
+          <p className="text-sm text-red-600">{fieldErrors.author}</p>
         ) : null}
       </div>
 
