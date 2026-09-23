@@ -12,6 +12,7 @@ I worked only on the files related to:
 - Showing and editing the post author
 - Showing post-specific 404 UI
 - Showing edit/delete/API validation errors on the frontend
+- Showing loading and unexpected-error states for the post route
 
 I avoided the shared files listed in the team instructions:
 
@@ -98,6 +99,34 @@ Why it was added:
 
 The task requires a proper not-found UI for invalid slugs. This file is used when `notFound()` is called from the single or edit post page.
 
+### `app/posts/[slug]/loading.tsx`
+
+This file creates the loading UI for the single/edit post route segment.
+
+What it does:
+
+- Shows a skeleton-style loading state while the route is loading.
+- Keeps the page from feeling blank during slower navigation or API requests.
+
+Why it was added:
+
+This supports the UI state rendering requirement by giving the post route a clear loading state.
+
+### `app/posts/[slug]/error.tsx`
+
+This file creates the unexpected error UI for the single/edit post route segment.
+
+What it does:
+
+- Shows a friendly error screen if the route crashes unexpectedly.
+- Provides a `Try again` button.
+- Provides a link back to the posts list.
+- Shows the error digest when Next.js provides one.
+
+Why it was added:
+
+This supports the error UI requirement beyond normal validation/API errors. It catches unexpected rendering errors and gives the user a recovery option.
+
 ### `components/posts/PostForm.tsx`
 
 This is a reusable client-side form component for editing a post.
@@ -134,7 +163,7 @@ This is a client-side delete button component.
 What it does:
 
 - Shows a delete button.
-- Opens a browser confirmation before deleting.
+- Opens an inline confirmation panel before deleting.
 - Calls the backend API:
 
 ```text
@@ -202,6 +231,8 @@ The frontend displays:
 - Edit request errors
 - Delete request errors
 - 404 not-found UI
+- Route loading UI
+- Unexpected route error UI
 
 ## Verification
 
