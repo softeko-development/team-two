@@ -1,65 +1,114 @@
+"use client";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import PostForm from "@/components/posts/PostForm";
-import { fetchPostBySlug, getPostPath } from "../postApi";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import PostForm, { PostFormValues } from "../../PostForm";
 
-export default async function EditPostPage({
-  params,
-}: PageProps<"/posts/[slug]/edit">) {
-  const { slug } = await params;
-  const result = await fetchPostBySlug(slug);
+type Post = PostFormValues & {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+};
 
-  if (result.status === "not-found") notFound();
+export default function EditPostPage() {
+  const params = useParams<{ slug: string }>();
+  const router = useRouter();
+  const slug = params.slug;
+  const [post, setPost] = useState<Post | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiErrors, setApiErrors] = useState<Record<string, string>>({});
+  const [message, setMessage] = useState("");
 
-  if (result.status === "error") {
-    return (
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-12">
-        <div
-          role="alert"
-          className="rounded-md border border-red-200 bg-red-50 p-5 text-red-800"
-        >
-          <h1 className="text-lg font-semibold">Unable to load editor</h1>
-          <p className="mt-2 text-sm">
-            The post could not be loaded for editing. Please try again later.
-          </p>
-        </div>
-      </main>
-    );
+  useEffect(() => {
+    async function loadPost() {
+      setIsLoading(true);
+      setMessage("");
+
+      try {
+        const response = await fetch(`/api/posts/${encodeURIComponent(slug)}`);
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.message || "Could not load post.");
+        }
+
+        setPost(data.post);
+      } catch (loadError) {
+        setMessage(
+          loadError instanceof Error
+            ? loadError.message
+            : "Could not load post.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadPost();
+  }, [slug]);
+
+  async function updatePost(values: PostFormValues) {
+    setApiErrors({});
+    setMessage("");
+
+    const response = await fetch(`/api/posts/${encodeURIComponent(slug)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      if (data.errors) {
+        setApiErrors(data.errors);
+        return;
+      }
+
+      setMessage(data.message || "Could not update post.");
+      return;
+    }
+
+    router.push("/posts");
   }
 
-  const { post } = result;
-
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-12">
-      <div className="mb-8">
-        <Link
-          href={getPostPath(post.slug)}
-          className="text-sm font-medium text-zinc-600 transition hover:text-zinc-950"
-        >
-          Back to post
+    <main className="min-h-screen bg-neutral-50 px-5 py-8 text-neutral-950">
+      <div className="mx-auto max-w-2xl">
+        <Link href="/posts" className="text-sm text-neutral-600 underline">
+          Back to posts
         </Link>
-      </div>
+        <div className="mt-5 rounded border border-neutral-200 bg-white p-5">
+          <h1 className="text-2xl font-semibold tracking-tight">Edit post</h1>
 
-      <div className="space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
-            Edit post
-          </h1>
-          <p className="text-sm text-zinc-600">
-            Update the post details and save your changes.
-          </p>
-        </header>
+          {message ? (
+            <div className="mt-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              {message}
+            </div>
+          ) : null}
 
-        <PostForm
-          originalSlug={post.slug}
-          initialPost={{
-            title: post.title,
-            author: post.author ?? "",
-            slug: post.slug,
-            content: post.content,
-            published: post.published,
-          }}
-        />
+          {isLoading ? (
+            <div className="mt-5 text-sm text-neutral-600">Loading post...</div>
+          ) : post ? (
+            <div className="mt-5">
+              <PostForm
+                initialValues={{
+                  title: post.title,
+                  slug: post.slug,
+                  content: post.content,
+                  published: post.published,
+                }}
+                submitLabel="Update post"
+                savingLabel="Saving..."
+                apiErrors={apiErrors}
+                onSubmit={updatePost}
+              />
+            </div>
+          ) : (
+            <p className="mt-5 text-sm text-neutral-600">Post was not found.</p>
+          )}
+        </div>
       </div>
     </main>
   );
