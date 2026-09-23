@@ -70,7 +70,7 @@ export default function EditPostPage() {
       return;
     }
 
-    router.push(`/posts/${data.post.slug}/edit`);
+    router.push("/posts");
   }
 
   return (
