@@ -27,6 +27,9 @@ export default function DeletePostButton({
   redirectTo = "/",
 }: DeletePostButtonProps) {
   const router = useRouter();
+  const safeId = slug.replace(/[^a-zA-Z0-9_-]/g, "-");
+  const confirmationTitleId = `delete-post-${safeId}-title`;
+  const confirmationDescriptionId = `delete-post-${safeId}-description`;
   const [isConfirming, setIsConfirming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
@@ -58,11 +61,19 @@ export default function DeletePostButton({
   return (
     <div className="space-y-3">
       {isConfirming ? (
-        <div className="rounded-md border border-red-200 bg-red-50 p-4">
-          <p className="text-sm font-medium text-red-900">
+        <div
+          role="alertdialog"
+          aria-labelledby={confirmationTitleId}
+          aria-describedby={confirmationDescriptionId}
+          className="rounded-md border border-red-200 bg-red-50 p-4"
+        >
+          <p
+            id={confirmationTitleId}
+            className="text-sm font-medium text-red-900"
+          >
             Delete this post?
           </p>
-          <p className="mt-1 text-sm text-red-700">
+          <p id={confirmationDescriptionId} className="mt-1 text-sm text-red-700">
             This action cannot be undone.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -98,7 +109,10 @@ export default function DeletePostButton({
       )}
 
       {error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
           {error}
         </p>
       ) : null}

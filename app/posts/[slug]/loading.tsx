@@ -1,6 +1,11 @@
 export default function PostRouteLoading() {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-6 py-12">
+    <main
+      aria-busy="true"
+      aria-label="Loading post"
+      className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-6 py-12"
+    >
+      <span className="sr-only">Loading post...</span>
       <div className="mb-8 h-5 w-24 rounded bg-zinc-200" />
 
       <div className="space-y-8">

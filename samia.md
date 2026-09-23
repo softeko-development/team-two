@@ -13,6 +13,8 @@ I worked only on the files related to:
 - Showing post-specific 404 UI
 - Showing edit/delete/API validation errors on the frontend
 - Showing loading and unexpected-error states for the post route
+- Encoding slug route segments before navigation
+- Validating API response shape before rendering post data
 
 I avoided the shared files listed in the team instructions:
 
@@ -44,6 +46,7 @@ GET /api/posts/[slug]
 
 - Displays the post title, slug, content, published status, and updated date.
 - Displays the post author when the backend includes it.
+- Validates the API response shape before rendering the post.
 - Shows a link back to the posts list.
 - Shows an edit link:
 
@@ -54,6 +57,7 @@ GET /api/posts/[slug]
 - Includes the delete button component.
 - Calls `notFound()` if the backend returns `404`.
 - Shows an error box if the API fails for another reason.
+- Encodes the post slug when linking to the edit page.
 
 Why it was added:
 
@@ -80,6 +84,7 @@ GET /api/posts/[slug]
 - Passes the post data into the reusable `PostForm` component.
 - Calls `notFound()` if the post does not exist.
 - Shows a clear error message if the post cannot be loaded for editing.
+- Encodes the post slug when linking back to the single post page.
 
 Why it was added:
 
@@ -111,6 +116,23 @@ What it does:
 Why it was added:
 
 This supports the UI state rendering requirement by giving the post route a clear loading state.
+
+### `app/posts/[slug]/postApi.ts`
+
+This file centralizes the single-post API reading logic for the route.
+
+What it does:
+
+- Fetches a post by slug from the backend API.
+- Encodes the slug before putting it into the API URL.
+- Uses `APP_URL` or `NEXT_PUBLIC_APP_URL` as the trusted base URL when configured.
+- Avoids trusting request headers in production unless an app URL is explicitly configured.
+- Validates the response shape before allowing the page to render post data.
+- Provides shared helpers for post links and date formatting.
+
+Why it was added:
+
+This reduces duplicated API fetching logic and improves security/resilience around host handling, malformed API responses, and slug routing.
 
 ### `app/posts/[slug]/error.tsx`
 
@@ -151,6 +173,8 @@ PATCH /api/posts/[slug]
 - Shows duplicate slug/API errors returned by the backend.
 - Shows a loading state while saving.
 - Redirects to the updated single post page after a successful save.
+- Encodes the updated slug before redirecting.
+- Marks validation/API errors with accessible alert semantics.
 
 Why it was added:
 
@@ -174,6 +198,7 @@ DELETE /api/posts/[slug]
 - Shows delete/API errors if the delete request fails.
 - Redirects back to the posts list after a successful delete.
 - Refreshes the route after deletion.
+- Uses accessible alert semantics for the confirmation and delete errors.
 
 Why it was added:
 
@@ -233,6 +258,17 @@ The frontend displays:
 - 404 not-found UI
 - Route loading UI
 - Unexpected route error UI
+- Accessible alert states for validation and API errors
+
+## Security and Architecture Improvements
+
+The frontend avoids rendering post content as HTML. It displays `content` as normal React text, which helps prevent XSS as long as `dangerouslySetInnerHTML` is not introduced.
+
+Slug values are encoded before being used in frontend navigation or API URLs. This prevents special characters in malformed slugs from breaking routes.
+
+The single/edit pages validate the backend response shape before rendering. If the API returns malformed data, the UI shows an error state instead of trying to render unsafe or incomplete values.
+
+The server-side API fetch helper prefers a configured app URL through `APP_URL` or `NEXT_PUBLIC_APP_URL`. In production, this avoids blindly trusting request headers to decide which host to fetch from.
 
 ## Verification
 

@@ -29,6 +29,10 @@ type ApiPostResponse = {
   };
 };
 
+function getFieldErrorId(field: keyof PostFormData) {
+  return `${field}-error`;
+}
+
 function getFieldErrors(form: PostFormData) {
   const errors: Partial<Record<keyof PostFormData, string>> = {};
 
@@ -116,7 +120,7 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
       const data = (await response.json()) as ApiPostResponse;
       const nextSlug = data.post?.slug || data.slug || form.slug.trim();
 
-      router.push(`/posts/${nextSlug}`);
+      router.push(`/posts/${encodeURIComponent(nextSlug)}`);
       router.refresh();
     } catch {
       setSubmitError("Network error. Please try saving the post again.");
@@ -139,10 +143,18 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
           type="text"
           value={form.title}
           onChange={(event) => updateField("title", event.target.value)}
+          aria-invalid={Boolean(fieldErrors.title)}
+          aria-describedby={fieldErrors.title ? getFieldErrorId("title") : undefined}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-zinc-950 focus:ring-2 focus:ring-zinc-200"
         />
         {fieldErrors.title ? (
-          <p className="text-sm text-red-600">{fieldErrors.title}</p>
+          <p
+            id={getFieldErrorId("title")}
+            role="alert"
+            className="text-sm text-red-600"
+          >
+            {fieldErrors.title}
+          </p>
         ) : null}
       </div>
 
@@ -158,10 +170,20 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
           type="text"
           value={form.author}
           onChange={(event) => updateField("author", event.target.value)}
+          aria-invalid={Boolean(fieldErrors.author)}
+          aria-describedby={
+            fieldErrors.author ? getFieldErrorId("author") : undefined
+          }
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-zinc-950 focus:ring-2 focus:ring-zinc-200"
         />
         {fieldErrors.author ? (
-          <p className="text-sm text-red-600">{fieldErrors.author}</p>
+          <p
+            id={getFieldErrorId("author")}
+            role="alert"
+            className="text-sm text-red-600"
+          >
+            {fieldErrors.author}
+          </p>
         ) : null}
       </div>
 
@@ -177,10 +199,18 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
           type="text"
           value={form.slug}
           onChange={(event) => updateField("slug", event.target.value)}
+          aria-invalid={Boolean(fieldErrors.slug)}
+          aria-describedby={fieldErrors.slug ? getFieldErrorId("slug") : undefined}
           className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-zinc-950 focus:ring-2 focus:ring-zinc-200"
         />
         {fieldErrors.slug ? (
-          <p className="text-sm text-red-600">{fieldErrors.slug}</p>
+          <p
+            id={getFieldErrorId("slug")}
+            role="alert"
+            className="text-sm text-red-600"
+          >
+            {fieldErrors.slug}
+          </p>
         ) : null}
       </div>
 
@@ -196,10 +226,20 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
           rows={10}
           value={form.content}
           onChange={(event) => updateField("content", event.target.value)}
+          aria-invalid={Boolean(fieldErrors.content)}
+          aria-describedby={
+            fieldErrors.content ? getFieldErrorId("content") : undefined
+          }
           className="w-full resize-y rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-zinc-950 focus:ring-2 focus:ring-zinc-200"
         />
         {fieldErrors.content ? (
-          <p className="text-sm text-red-600">{fieldErrors.content}</p>
+          <p
+            id={getFieldErrorId("content")}
+            role="alert"
+            className="text-sm text-red-600"
+          >
+            {fieldErrors.content}
+          </p>
         ) : null}
       </div>
 
@@ -214,7 +254,10 @@ export default function PostForm({ initialPost, originalSlug }: PostFormProps) {
       </label>
 
       {submitError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
           {submitError}
         </p>
       ) : null}
